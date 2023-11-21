@@ -71,3 +71,6 @@ target/
 .DS_Store
 epitran/bin/test_codes.py
 epitran/data/map/count_langs.py
+
+# venv
+.venv
