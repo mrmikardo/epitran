@@ -1,16 +1,14 @@
-from __future__ import print_function, unicode_literals, division, absolute_import
-
 import os.path
 import sys
 from unicodedata import normalize
 
 import pkg_resources
-
-import epitran
 import unicodecsv as csv
 
+import epitran
 
-class ReRomanizer(object):
+
+class ReRomanizer:
     """Converts IPA representations to a readable roman form."""
 
     def __init__(self, code, table, decompose=True, cedict_file=None):

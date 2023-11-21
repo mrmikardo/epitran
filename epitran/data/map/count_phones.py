@@ -1,8 +1,9 @@
 #!/usr/bin/env
 
-import epitran.xsampa
 import panphon
 import unicodecsv as csv
+
+import epitran.xsampa
 
 
 def main(fn):

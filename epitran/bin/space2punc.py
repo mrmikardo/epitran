@@ -2,6 +2,7 @@
 
 import sys
 import unicodedata
+
 import unicodecsv as csv
 
 

@@ -1,10 +1,8 @@
-# -*- coding: utf-8 -*-
-
 import pkg_resources
 import unicodecsv as csv
 
 
-class PuncNorm(object):
+class PuncNorm:
     def __init__(self):
         """Constructs a punctuation normalization object"""
         self.puncnorm = self._load_punc_norm_map()

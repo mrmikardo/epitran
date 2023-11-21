@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-
-
 class MappingError(Exception):
     pass
 

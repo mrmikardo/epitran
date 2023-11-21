@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import io
 import logging
 import unicodedata
@@ -20,7 +17,7 @@ class RuleFileError(Exception):
     pass
 
 
-class Rules(object):
+class Rules:
     def __init__(self, rule_files):
         """Construct an object encoding context-sensitive rules
 

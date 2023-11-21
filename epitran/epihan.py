@@ -1,22 +1,21 @@
 # -*- utf-8 -*-
-from __future__ import print_function, unicode_literals, division, absolute_import
+
 
 import os.path
 
 import pkg_resources
 import regex as re
 
-from . import cedict
-from . import rules
-from . import download
 from epitran.ligaturize import ligaturize
+
+from . import cedict, download, rules
 
 
 class MissingData(Exception):
     pass
 
 
-class Epihan(object):
+class Epihan:
     punc = [
         ("\uff0c", ","),
         ("\uff01", "!"),

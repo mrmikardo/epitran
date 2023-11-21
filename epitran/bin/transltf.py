@@ -1,11 +1,13 @@
 #!/usr/bin/env python
-from __future__ import print_function
+
 
 import sys
 
 from lxml import etree
+
 import epitran
 import epitran.vector
+
 
 def main(fn):
     epi = epitran.Epitran('uig-Arab')

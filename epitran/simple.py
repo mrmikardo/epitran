@@ -1,17 +1,17 @@
 """Basic Epitran class for G2P in most languages."""
+import csv
 import logging
 import os.path
 import sys
-import csv
 import unicodedata
 from collections import defaultdict
-from typing import DefaultDict, Callable  # pylint: disable=unused-import
+from typing import Callable, DefaultDict  # pylint: disable=unused-import
 
+import panphon
 import pkg_resources
 import regex
 
-import panphon
-from epitran.exceptions import DatafileError, MappingError, FeatureValueError
+from epitran.exceptions import DatafileError, FeatureValueError, MappingError
 from epitran.ligaturize import ligaturize
 from epitran.ppprocessor import PrePostProcessor
 from epitran.puncnorm import PuncNorm
@@ -20,7 +20,7 @@ from epitran.stripdiacritics import StripDiacritics
 logger = logging.getLogger("epitran")
 
 
-class SimpleEpitran(object):
+class SimpleEpitran:
     """The backend object epitran uses for most languages
 
     :param code str: ISO 639-3 code and ISO 15924 code joined with a hyphen

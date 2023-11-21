@@ -1,8 +1,8 @@
-# -*- coding: utf-8 -*-
 import logging
 from typing import Union
 
 import panphon.featuretable
+
 from epitran.epihan import Epihan, EpihanTraditional
 from epitran.flite import FliteLexLookup
 from epitran.puncnorm import PuncNorm
@@ -13,7 +13,7 @@ logger = logging.getLogger("epitran")
 logger.setLevel(logging.WARNING)
 
 
-class Epitran(object):
+class Epitran:
     """Unified interface for IPA transliteration/transcription
 
     :param code str: ISO 639-3 plus "-" plus ISO 15924 code of the language/script pair that should be loaded

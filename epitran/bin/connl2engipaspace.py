@@ -5,11 +5,11 @@ import codecs
 import logging
 from collections import Counter
 
+import panphon
 import unicodecsv as csv
 
 import epitran
 import epitran.flite
-import panphon
 
 logger = logging.getLogger('epitran')
 

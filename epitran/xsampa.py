@@ -1,17 +1,13 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os.path
 import unicodedata
 
-import pkg_resources
-
 import marisa_trie
 import panphon
+import pkg_resources
 import unicodecsv as csv
 
 
-class XSampa(object):
+class XSampa:
     ipa2xs_fn = "ipa-xsampa.csv"
 
     def __init__(self):

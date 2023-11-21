@@ -1,10 +1,12 @@
 #!/usr/bin/env python2
 
-from __future__ import print_function
 
-import epitran.reromanize
+
 import argparse
 import sys
+
+import epitran.reromanize
+
 
 def main(code, table):
     rr = epitran.reromanize.ReRomanizer(code, table)

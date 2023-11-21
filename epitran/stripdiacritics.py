@@ -1,15 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os.path
 import unicodedata
 
 import pkg_resources
-
 import unicodecsv as csv
 
 
-class StripDiacritics(object):
+class StripDiacritics:
     def __init__(self, code):
         """Constructs object to strip specified diacritics from text
 

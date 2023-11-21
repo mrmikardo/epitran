@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, unicode_literals
-
 import os.path
 
 import pkg_resources
+
 from . import rules
 
 
-class Tir2PP(object):
+class Tir2PP:
     def __init__(self):
         fn = os.path.join("data", "post", "tir-Ethi-pp.txt")
         fn = pkg_resources.resource_filename(__name__, fn)

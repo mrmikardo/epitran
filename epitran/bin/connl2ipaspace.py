@@ -5,9 +5,10 @@ import codecs
 import logging
 from collections import Counter
 
-import epitran
 import panphon
 import unicodecsv as csv
+
+import epitran
 
 logger = logging.getLogger('epitran')
 

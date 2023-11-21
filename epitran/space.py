@@ -1,14 +1,12 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import os
 
 import pkg_resources
 import unicodecsv as csv
+
 from epitran import Epitran
 
 
-class Space(object):
+class Space:
     def __init__(self, code, space_names):
         """Construct a Space object
 

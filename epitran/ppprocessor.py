@@ -1,5 +1,3 @@
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os.path
 import unicodedata
@@ -11,7 +9,7 @@ from epitran.rules import Rules
 logging.basicConfig(level=logging.DEBUG)
 
 
-class PrePostProcessor(object):
+class PrePostProcessor:
     def __init__(self, code, fix, rev):
         """Constructs a pre/post-processor for orthographic/IPA strings
 

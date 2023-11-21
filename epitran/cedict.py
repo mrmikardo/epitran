@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import codecs
 
 import marisa_trie
@@ -9,7 +6,7 @@ import regex as re
 ASCII_CHARS = "".join([chr(i) for i in range(128)])
 
 
-class CEDictTrie(object):
+class CEDictTrie:
     def __init__(self, cedict_file, traditional=False):
         """Construct a trie over CC-CEDict
 

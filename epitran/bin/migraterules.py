@@ -1,11 +1,11 @@
 #!/usr/bin/env Python
-# -*- coding: utf-8 -*-
 
-from __future__ import (print_function, unicode_literals, absolute_import)
+
+
 
 import glob
-import re
 import io
+import re
 
 import unicodecsv
 

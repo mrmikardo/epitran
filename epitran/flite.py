@@ -1,17 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import, division, print_function, unicode_literals
-
 import logging
 import os.path
 import string
 import sys
 import unicodedata
 
+import panphon
 import pkg_resources
 import regex as re
-
-import panphon
 import unicodecsv as csv
+
 from epitran.ligaturize import ligaturize
 from epitran.puncnorm import PuncNorm
 
@@ -30,7 +27,7 @@ if sys.version_info[0] == 3:
         return x
 
 
-class Flite(object):
+class Flite:
     """English G2P using the Flite speech synthesis system."""
 
     def __init__(self, arpabet="arpabet", ligatures=False, **kwargs):

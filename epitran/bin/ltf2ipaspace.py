@@ -1,16 +1,16 @@
 #!/usr/bin/env python
-# -*- coding: utf-8 -*-
-from __future__ import print_function
+
+
 
 import argparse
 import glob
 import os.path
 
-from lxml import etree
+import panphon.featuretable
 import unicodecsv as csv
+from lxml import etree
 
 import epitran
-import panphon.featuretable
 
 
 def read_tokens(fn):

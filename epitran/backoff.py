@@ -1,15 +1,14 @@
-# -*- coding: utf-8 -*-
-from __future__ import print_function, absolute_import, unicode_literals
-
-import regex as re
-from . import _epitran
 import panphon.featuretable
+import regex as re
+
 from epitran.puncnorm import PuncNorm
-from epitran.xsampa import XSampa
 from epitran.stripdiacritics import StripDiacritics
+from epitran.xsampa import XSampa
+
+from . import _epitran
 
 
-class Backoff(object):
+class Backoff:
     """Implements rudimentary language ID and backoff."""
 
     def __init__(self, lang_script_codes, cedict_file=None):
