@@ -1,6 +1,3 @@
-# -*- utf-8 -*-
-
-
 import os.path
 
 import pkg_resources
