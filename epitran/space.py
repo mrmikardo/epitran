@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import os
 
@@ -30,20 +29,20 @@ class Space(object):
 
     def _load_space(self, space_names):
         segs = set()
-        scripts = list(set([nm.split('-')[1] for nm in space_names]))
-        punc_fns = ['punc-{}.csv'.format(sc) for sc in scripts]
+        scripts = list(set([nm.split("-")[1] for nm in space_names]))
+        punc_fns = ["punc-{}.csv".format(sc) for sc in scripts]
         for punc_fn in punc_fns:
-            punc_fn = os.path.join('data', 'space', punc_fn)
+            punc_fn = os.path.join("data", "space", punc_fn)
             punc_fn = pkg_resources.resource_filename(__name__, punc_fn)
-            with open(punc_fn, 'rb') as f:
-                reader = csv.reader(f, encoding='utf-8')
+            with open(punc_fn, "rb") as f:
+                reader = csv.reader(f, encoding="utf-8")
                 for (mark,) in reader:
                     segs.add(mark)
         for name in space_names:
-            fn = os.path.join('data', 'space', name + '.csv')
+            fn = os.path.join("data", "space", name + ".csv")
             fn = pkg_resources.resource_filename(__name__, fn)
-            with open(fn, 'rb') as f:
-                reader = csv.reader(f, encoding='utf-8')
+            with open(fn, "rb") as f:
+                reader = csv.reader(f, encoding="utf-8")
                 for _, to_ in reader:
                     for seg in self.epi.ft.ipa_segs(to_):
                         segs.add(seg)

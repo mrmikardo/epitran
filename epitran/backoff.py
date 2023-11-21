@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import (print_function, absolute_import,
-                        unicode_literals)
+from __future__ import print_function, absolute_import, unicode_literals
 
 import regex as re
 from . import _epitran
@@ -22,9 +21,10 @@ class Backoff(object):
             cedict_file (str): path to the CC-CEdict dictionary file
             (necessary only when cmn-Hans or cmn-Hant are used)
         """
-        self.langs = [_epitran.Epitran(c, cedict_file=cedict_file)
-                      for c in lang_script_codes]
-        self.num_re = re.compile(r'\p{Number}+')
+        self.langs = [
+            _epitran.Epitran(c, cedict_file=cedict_file) for c in lang_script_codes
+        ]
+        self.num_re = re.compile(r"\p{Number}+")
         self.ft = panphon.featuretable.FeatureTable()
         self.xsampa = XSampa()
         self.puncnorm = PuncNorm()
@@ -41,26 +41,26 @@ class Backoff(object):
         while token:
             is_outside_lang = True
             for dia, lang in zip(self.dias, self.langs):
-                source = ''
+                source = ""
                 while True:
                     m = lang.epi.regexp.match(dia.process(token))
                     if not m:
                         break
                     s = m.group()
-                    token = token[len(s):]
+                    token = token[len(s) :]
                     source += s
                     is_outside_lang = False
                 tr_list.append(lang.transliterate(source))
             if is_outside_lang:
-                m = re.match(r'\p{Number}+', token)
+                m = re.match(r"\p{Number}+", token)
                 if m:
                     source = m.group()
                     tr_list.append(source)
-                    token = token[len(source):]
+                    token = token[len(source) :]
                 else:
                     tr_list.append(token[0])
                     token = token[1:]
-        return ''.join(tr_list)
+        return "".join(tr_list)
 
     def trans_list(self, token):
         """Transliterate/transcribe a word into list of IPA phonemes.
@@ -82,8 +82,8 @@ class Backoff(object):
         Returns:
             list: list of X-SAMPA strings, each corresponding to a segment
         """
-        if re.match(r'^\p{Number}+$', token):
-            return ''
+        if re.match(r"^\p{Number}+$", token):
+            return ""
         else:
             ipa_segs = self.ft.ipa_segs(self.transliterate(token))
             return list(map(self.xsampa.ipa2xs, ipa_segs))

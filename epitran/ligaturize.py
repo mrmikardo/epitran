@@ -12,12 +12,14 @@ def ligaturize(text):
     Return:
         unicode: non-standard IPA text with phonetic ligatures for affricates
     """
-    mapping = [(u't͡s', u'ʦ'),
-               (u't͡ʃ', u'ʧ'),
-               (u't͡ɕ', u'ʨ'),
-               (u'd͡z', u'ʣ'),
-               (u'd͡ʒ', u'ʤ'),
-               (u'd͡ʑ', u'ʥ'),]
+    mapping = [
+        ("t͡s", "ʦ"),
+        ("t͡ʃ", "ʧ"),
+        ("t͡ɕ", "ʨ"),
+        ("d͡z", "ʣ"),
+        ("d͡ʒ", "ʤ"),
+        ("d͡ʑ", "ʥ"),
+    ]
     for from_, to_ in mapping:
         text = text.replace(from_, to_)
     return text

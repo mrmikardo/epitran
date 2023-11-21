@@ -1,5 +1,4 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import os.path
@@ -29,9 +28,9 @@ class PrePostProcessor(object):
         self.rules = self._read_rules(code, fix, rev)
 
     def _read_rules(self, code, fix, rev):
-        assert fix in ['pre', 'post']
-        code += '_rev' if rev else ''
-        fn = os.path.join('data', fix, code + '.txt')
+        assert fix in ["pre", "post"]
+        code += "_rev" if rev else ""
+        fn = os.path.join("data", fix, code + ".txt")
         try:
             abs_fn = pkg_resources.resource_filename(__name__, fn)
         except KeyError:

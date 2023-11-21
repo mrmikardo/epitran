@@ -28,19 +28,19 @@ class ReRomanizer(object):
         self.mapping = self._load_reromanizer(table, decompose)
 
     def _load_reromanizer(self, table, decompose):
-        path = os.path.join('data', 'reromanize', table + '.csv')
+        path = os.path.join("data", "reromanize", table + ".csv")
         path = pkg_resources.resource_filename(__name__, path)
         if os.path.isfile(path):
             mapping = {}
-            with open(path, 'rb') as f:
-                reader = csv.reader(f, encoding='utf-8')
+            with open(path, "rb") as f:
+                reader = csv.reader(f, encoding="utf-8")
                 next(reader)
                 for ipa, rom in reader:
-                    rom = normalize('NFD', rom) if decompose else normalize('NFC', rom)
+                    rom = normalize("NFD", rom) if decompose else normalize("NFC", rom)
                     mapping[ipa] = rom
             return mapping
         else:
-            print('File {} does not exist.'.format(path), file=sys.stderr)
+            print("File {} does not exist.".format(path), file=sys.stderr)
             return {}
 
     def reromanize_ipa(self, tr_list):
@@ -62,4 +62,4 @@ class ReRomanizer(object):
             unicode: romanized text
         """
         tr_list = self.epi.trans_list(text)
-        return ''.join(self.reromanize_ipa(tr_list))
+        return "".join(self.reromanize_ipa(tr_list))

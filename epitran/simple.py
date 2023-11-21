@@ -5,7 +5,7 @@ import sys
 import csv
 import unicodedata
 from collections import defaultdict
-from typing import DefaultDict, Callable # pylint: disable=unused-import
+from typing import DefaultDict, Callable  # pylint: disable=unused-import
 
 import pkg_resources
 import regex
@@ -17,7 +17,8 @@ from epitran.ppprocessor import PrePostProcessor
 from epitran.puncnorm import PuncNorm
 from epitran.stripdiacritics import StripDiacritics
 
-logger = logging.getLogger('epitran')
+logger = logging.getLogger("epitran")
+
 
 class SimpleEpitran(object):
     """The backend object epitran uses for most languages
@@ -31,8 +32,18 @@ class SimpleEpitran(object):
     :param rev_preproc bool, optional: if True, applyy preprocessor when reverse transliterating
     :param rev_postproc bool, optional: if True, applyy postprocessor when reverse transliterating
     """
-    def __init__(self, code: str, preproc: bool=True, postproc: bool=True, ligatures: bool=False,
-                 rev: bool=False, rev_preproc: bool=True, rev_postproc: bool=True, tones: bool=False):
+
+    def __init__(
+        self,
+        code: str,
+        preproc: bool = True,
+        postproc: bool = True,
+        ligatures: bool = False,
+        rev: bool = False,
+        rev_preproc: bool = True,
+        rev_postproc: bool = True,
+        tones: bool = False,
+    ):
         """Constructor"""
         self.rev = rev
         self.tones = tones
@@ -41,8 +52,8 @@ class SimpleEpitran(object):
         self.puncnorm = PuncNorm()
         self.ft = panphon.FeatureTable()
         self.num_panphon_fts = len(self.ft.names)
-        self.preprocessor = PrePostProcessor(code, 'pre', False)
-        self.postprocessor = PrePostProcessor(code, 'post', False)
+        self.preprocessor = PrePostProcessor(code, "pre", False)
+        self.postprocessor = PrePostProcessor(code, "post", False)
         self.strip_diacritics = StripDiacritics(code)
         self.preproc = preproc
         self.postproc = postproc
@@ -52,14 +63,14 @@ class SimpleEpitran(object):
         if rev:
             self.rev_g2p = self._load_g2p_map(code, True)
             self.rev_regexp = self._construct_regex(self.rev_g2p.keys())
-            self.rev_preprocessor = PrePostProcessor(code, 'pre', True)
-            self.rev_postprocessor = PrePostProcessor(code, 'post', True)
+            self.rev_preprocessor = PrePostProcessor(code, "pre", True)
+            self.rev_postprocessor = PrePostProcessor(code, "post", True)
 
         self.nils = defaultdict(int)
 
     def get_tones(self) -> bool:
         """Returns True if support for tones is turned on.
-        
+
         :return: True if tone support is activated
         :rtype: bool
         """
@@ -78,39 +89,47 @@ class SimpleEpitran(object):
     #             return (g, ls)
     #     return ("", [])
 
-    def _non_deterministic_mappings(self, gr_by_line: "dict[str, list[int]]") -> "list[tuple[str, list[int]]]":
+    def _non_deterministic_mappings(
+        self, gr_by_line: "dict[str, list[int]]"
+    ) -> "list[tuple[str, list[int]]]":
         return [(g, ls) for (g, ls) in gr_by_line.items() if len(ls) > 1]
 
     def _load_g2p_map(self, code: str, rev: bool) -> "DefaultDict[str, list[str]]":
         """Load the code table for the specified language.
 
-        :param code str: ISO 639-3 code plus "-" plus ISO 15924 code for the language/script to be loaded 
+        :param code str: ISO 639-3 code plus "-" plus ISO 15924 code for the language/script to be loaded
         :param rev bool: If True, reverse the table (for reverse transliterating)
         :return: A mapping from graphemes to phonemes
         :rtype: DefaultDict[str, list[str]]
         """
         g2p = defaultdict(list)
         gr_by_line = defaultdict(list)
-        code += '_rev' if rev else ''
+        code += "_rev" if rev else ""
         try:
-            path = os.path.join('data', 'map', code + '.csv')
+            path = os.path.join("data", "map", code + ".csv")
             path = pkg_resources.resource_filename(__name__, path)
         except IndexError as malformed_data_file:
-            raise DatafileError('Add an appropriately-named mapping to the data/maps directory.') from malformed_data_file
-        with open(path, encoding='utf-8') as f:
+            raise DatafileError(
+                "Add an appropriately-named mapping to the data/maps directory."
+            ) from malformed_data_file
+        with open(path, encoding="utf-8") as f:
             reader = csv.reader(f)
             orth, phon = next(reader)
-            if orth != 'Orth' or phon != 'Phon':
-                raise DatafileError(f'Header is ["{orth}", "{phon}"] instead of ["Orth", "Phon"].')
+            if orth != "Orth" or phon != "Phon":
+                raise DatafileError(
+                    f'Header is ["{orth}", "{phon}"] instead of ["Orth", "Phon"].'
+                )
             for (i, fields) in enumerate(reader):
                 try:
                     graph, phon = fields
                 except ValueError as malformed_data_file:
-                    raise DatafileError(f'Map file is not well formed at line {i + 2}.') from malformed_data_file
-                graph = unicodedata.normalize('NFD', graph)
-                phon = unicodedata.normalize('NFD', phon)
+                    raise DatafileError(
+                        f"Map file is not well formed at line {i + 2}."
+                    ) from malformed_data_file
+                graph = unicodedata.normalize("NFD", graph)
+                phon = unicodedata.normalize("NFD", phon)
                 if not self.tones:
-                    phon = regex.sub('[˩˨˧˦˥]', '', phon)
+                    phon = regex.sub("[˩˨˧˦˥]", "", phon)
                 g2p[graph].append(phon)
                 gr_by_line[graph].append(i)
         nondeterminisms = self._non_deterministic_mappings(gr_by_line)
@@ -118,29 +137,37 @@ class SimpleEpitran(object):
             message = ""
             for graph, lines in nondeterminisms:
                 lines = [l + 2 for l in lines]
-                delim = ', '
-                message += '\n' + f'One-to-many G2P mapping for "{graph}" on lines {delim.join(map(str, lines))}'
-            raise MappingError(f'Invalid mapping for {code}:\n{message}')
+                delim = ", "
+                message += (
+                    "\n"
+                    + f'One-to-many G2P mapping for "{graph}" on lines {delim.join(map(str, lines))}'
+                )
+            raise MappingError(f"Invalid mapping for {code}:\n{message}")
         return g2p
 
     def _load_punc_norm_map(self):
         """Load the map table for normalizing 'down' punctuation."""
-        path = os.path.join('data', 'puncnorm.csv')
+        path = os.path.join("data", "puncnorm.csv")
         path = pkg_resources.resource_filename(__name__, path)
-        with open(path, encoding='utf-8') as f:
-            reader = csv.reader(f, delimiter=str(','), quotechar=str('"'))
+        with open(path, encoding="utf-8") as f:
+            reader = csv.reader(f, delimiter=str(","), quotechar=str('"'))
             next(reader)
             return {punc: norm for (punc, norm) in reader}
 
     def _construct_regex(self, g2p_keys):
         """Build a regular expression that will greadily match segments from
-           the mapping table.
+        the mapping table.
         """
         graphemes = sorted(g2p_keys, key=len, reverse=True)
         return regex.compile(f"({r'|'.join(graphemes)})", regex.I)
 
-    def general_trans(self, text: str, filter_func: "Callable[[tuple[str, bool]], bool]",
-                      normpunc: bool=False, ligatures: bool=False):
+    def general_trans(
+        self,
+        text: str,
+        filter_func: "Callable[[tuple[str, bool]], bool]",
+        normpunc: bool = False,
+        ligatures: bool = False,
+    ):
         """Transliaterates a word into IPA, filtering with filter_func
 
         :param text str: word to transcribe; unicode string
@@ -151,16 +178,16 @@ class SimpleEpitran(object):
         :return: IPA string corresponding to the orthographic input `text`
         :rtype: str
         """
-        text = unicodedata.normalize('NFD', text.lower())
-        logger.debug('(after norm) text=%s', repr(list(text)))
+        text = unicodedata.normalize("NFD", text.lower())
+        logger.debug("(after norm) text=%s", repr(list(text)))
         text = self.strip_diacritics.process(text)
-        logger.debug('(after strip) text=%s', repr(list(text)))
+        logger.debug("(after strip) text=%s", repr(list(text)))
         if self.preproc:
             text = self.preprocessor.process(text)
-        logger.debug('(after preproc) text=%s', repr(list(text)))
+        logger.debug("(after preproc) text=%s", repr(list(text)))
         tr_list = []
         while text:
-            logger.debug('text=%s', repr(list(text)))
+            logger.debug("text=%s", repr(list(text)))
             m = self.regexp.match(text)
             if m:
                 source = m.group(0)
@@ -174,22 +201,22 @@ class SimpleEpitran(object):
                     logger.debug("self.g2p[source]= %s", self.g2p[source])
                     target = source
                 tr_list.append((target, True))
-                text = text[len(source):]
+                text = text[len(source) :]
             else:
                 tr_list.append((text[0], False))
                 self.nils[text[0]] += 2
                 text = text[1:]
-        text = ''.join([s for (s, _) in filter(filter_func, tr_list)])
+        text = "".join([s for (s, _) in filter(filter_func, tr_list)])
         if self.postproc:
             text = self.postprocessor.process(text)
         if ligatures or self.ligatures:
             text = ligaturize(text)
         if normpunc:
             text = self.puncnorm.norm(text)
-        return unicodedata.normalize('NFC', text)
+        return unicodedata.normalize("NFC", text)
 
-    def transliterate(self, text: str, normpunc: bool=False, ligatures: bool=False):
-        """Transliterates/transcribes a word into IPA. Passes unmapped 
+    def transliterate(self, text: str, normpunc: bool = False, ligatures: bool = False):
+        """Transliterates/transcribes a word into IPA. Passes unmapped
         characters through to output unchanged.
 
         :param text str: word to transcribe
@@ -200,8 +227,7 @@ class SimpleEpitran(object):
         All unrecognized characters are included.
         :rtype: str
         """
-        return self.general_trans(text, lambda x: True,
-                                  normpunc, ligatures)
+        return self.general_trans(text, lambda x: True, normpunc, ligatures)
 
     def general_reverse_trans(self, text: str):
         """Reconstructs word from IPA. Does the reverse of transliterate().
@@ -225,17 +251,17 @@ class SimpleEpitran(object):
                     logger.debug("self.rev_g2p[source] = '%s'", self.g2p[source])
                     target = source
                 tr_list.append((target, True))
-                text = text[len(source):]
+                text = text[len(source) :]
             else:
                 tr_list.append((text[0], False))
                 self.nils[text[0]] += 2
                 text = text[1:]
-        text = ''.join([s for (s, _) in tr_list])
+        text = "".join([s for (s, _) in tr_list])
         if self.rev_postproc:
             text = self.rev_postprocessor.process(text)
-        return unicodedata.normalize('NFC', text)
+        return unicodedata.normalize("NFC", text)
 
-    def reverse_transliterate(self, ipa:str) -> str:
+    def reverse_transliterate(self, ipa: str) -> str:
         """Reconstructs word from IPA. Does the reverse of transliterate()
 
         :param ipa str: Word transcription in IPA
@@ -243,12 +269,16 @@ class SimpleEpitran(object):
         :rtype: str
         """
         if not self.rev:
-            raise ValueError('This Epitran object was initialized' + 
-            'with no reverse transliteration loaded')
+            raise ValueError(
+                "This Epitran object was initialized"
+                + "with no reverse transliteration loaded"
+            )
         return self.general_reverse_trans(ipa)
 
-    def strict_trans(self, text: str, normpunc: bool=False, ligatures: bool=False) -> str:
-        """Transliterates/transcribes a word into IPA, ignoring 
+    def strict_trans(
+        self, text: str, normpunc: bool = False, ligatures: bool = False
+    ) -> str:
+        """Transliterates/transcribes a word into IPA, ignoring
         umapped characters.
 
         :param word str: word to transcribe
@@ -258,10 +288,11 @@ class SimpleEpitran(object):
         out-of-mapping characters
         :rtype: str
         """
-        return self.general_trans(text, lambda x: x[1],
-                                  normpunc, ligatures)
+        return self.general_trans(text, lambda x: x[1], normpunc, ligatures)
 
-    def word_to_tuples(self, text: str, normpunc: bool=False) -> "list[tuple[str, int, str, str, list[tuple[str, list[int]]]]]":
+    def word_to_tuples(
+        self, text: str, normpunc: bool = False
+    ) -> "list[tuple[str, int, str, str, list[tuple[str, list[int]]]]]":
         """Given a word, returns a list of tuples corresponding to IPA segments.
 
         :param word str: Word to transcribe
@@ -277,16 +308,19 @@ class SimpleEpitran(object):
         the set {-1, 0, 1} where -1 corresponds to '-', 0 corresponds to '0',
         and 1 corresponds to '+'.
         """
+
         def cat_and_cap(category: str) -> "tuple[str, int]":
             cat, case = tuple(unicodedata.category(category))
-            case = 1 if case == 'u' else 0
+            case = 1 if case == "u" else 0
             return cat, case
 
         def recode_ft(feature: str) -> int:
             try:
-                return {'+': 1, '0': 0, '-': -1}[feature]
+                return {"+": 1, "0": 0, "-": -1}[feature]
             except KeyError:
-                raise FeatureValueError(f'Unknown feature value "{feature}"') from KeyError
+                raise FeatureValueError(
+                    f'Unknown feature value "{feature}"'
+                ) from KeyError
 
         def vec2bin(vec: "list[str]") -> "list[int]":
             return list(map(recode_ft, vec))
@@ -295,14 +329,14 @@ class SimpleEpitran(object):
             return seg, vec2bin(self.ft.segment_to_vector(seg))
 
         def to_vectors(phon: str) -> "list[tuple[str, list[int]]]":
-            if phon == '':
-                return [('', [0] * self.num_panphon_fts)]
+            if phon == "":
+                return [("", [0] * self.num_panphon_fts)]
             else:
                 return [to_vector(seg) for seg in self.ft.ipa_segs(phon)]
 
         tuples = []
         word = self.strip_diacritics.process(text)
-        word = unicodedata.normalize('NFD', word)
+        word = unicodedata.normalize("NFD", word)
         if self.preproc:
             word = self.preprocessor.process(word)
         while word:
@@ -312,14 +346,14 @@ class SimpleEpitran(object):
                 cat, case = cat_and_cap(span[0])
                 phon: str = self.g2p[span.lower()][0]
                 vecs: "list[tuple[str, list[int]]]" = to_vectors(phon)
-                tuples.append(('L', case, span, phon, vecs))
-                word: str = word[len(span):]
+                tuples.append(("L", case, span, phon, vecs))
+                word: str = word[len(span) :]
             else:
                 span = word[0]
                 span: str = self.puncnorm.norm(span) if normpunc else span
                 cat, case = cat_and_cap(span)
-                cat: str = 'P' if normpunc and cat in self.puncnorm else cat
-                phon: str = ''
+                cat: str = "P" if normpunc and cat in self.puncnorm else cat
+                phon: str = ""
                 vecs: "list[tuple[str, list[int]]]" = to_vectors(phon)
                 tuples.append((cat, case, span, phon, vecs))
                 word = word[1:]

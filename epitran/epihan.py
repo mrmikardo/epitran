@@ -17,21 +17,27 @@ class MissingData(Exception):
 
 
 class Epihan(object):
-    punc = [(u'\uff0c', u','),
-            (u'\uff01', u'!'),
-            (u'\uff1f', u'?'),
-            (u'\uff1b', u';'),
-            (u'\uff1a', u':'),
-            (u'\uff08', u'('),
-            (u'\uff09', u')'),
-            (u'\uff3b', u'['),
-            (u'\uff3d', u']'),
-            (u'\u3010', u'['),
-            (u'\u3011', u']'),
-            ]
+    punc = [
+        ("\uff0c", ","),
+        ("\uff01", "!"),
+        ("\uff1f", "?"),
+        ("\uff1b", ";"),
+        ("\uff1a", ":"),
+        ("\uff08", "("),
+        ("\uff09", ")"),
+        ("\uff3b", "["),
+        ("\uff3d", "]"),
+        ("\u3010", "["),
+        ("\u3011", "]"),
+    ]
 
-    def __init__(self, ligatures=False, cedict_file=None,
-                 rules_file='pinyin-to-ipa.txt', tones=False):
+    def __init__(
+        self,
+        ligatures=False,
+        cedict_file=None,
+        rules_file="pinyin-to-ipa.txt",
+        tones=False,
+    ):
         """Construct epitran object for Chinese
 
         Args:
@@ -49,13 +55,13 @@ class Epihan(object):
             else:
                 raise MissingData('Download CC-CEDICT with "epitran.download.cedict()')
         if tones:
-            rules_file = os.path.join('data', 'rules', 'pinyin-to-ipa-tones.txt')
+            rules_file = os.path.join("data", "rules", "pinyin-to-ipa-tones.txt")
         else:
-            rules_file = os.path.join('data', 'rules', rules_file)
+            rules_file = os.path.join("data", "rules", rules_file)
         rules_file = pkg_resources.resource_filename(__name__, rules_file)
         self.cedict = cedict.CEDictTrie(cedict_file)
         self.rules = rules.Rules([rules_file])
-        self.regexp = re.compile(r'\p{Han}')
+        self.regexp = re.compile(r"\p{Han}")
 
     def normalize_punc(self, text):
         """Normalize punctutation in a string
@@ -87,23 +93,28 @@ class Epihan(object):
         for token in tokens:
             if token in self.cedict.hanzi:
                 (pinyin, _) = self.cedict.hanzi[token]
-                pinyin = u''.join(pinyin).lower()
+                pinyin = "".join(pinyin).lower()
                 ipa = self.rules.apply(pinyin)
-                ipa_tokens.append(ipa.replace(u',', u''))
+                ipa_tokens.append(ipa.replace(",", ""))
             else:
                 if normpunc:
                     token = self.normalize_punc(token)
                 ipa_tokens.append(token)
-        ipa_tokens = map(ligaturize, ipa_tokens)\
-                if ligatures else ipa_tokens
-        return u''.join(ipa_tokens)
+        ipa_tokens = map(ligaturize, ipa_tokens) if ligatures else ipa_tokens
+        return "".join(ipa_tokens)
 
     def strict_trans(self, text, normpunc=False, ligatures=False):
         return self.transliterate(text, normpunc, ligatures)
 
 
 class EpihanTraditional(Epihan):
-    def __init__(self, ligatures=False, cedict_file=None, tones=False, rules_file='pinyin-to-ipa.txt'):
+    def __init__(
+        self,
+        ligatures=False,
+        cedict_file=None,
+        tones=False,
+        rules_file="pinyin-to-ipa.txt",
+    ):
         """Construct epitran object for Traditional Chinese
 
         Args:
@@ -118,10 +129,10 @@ class EpihanTraditional(Epihan):
             else:
                 raise MissingData('Download CC-CEDICT with "epitran.download.cedict().')
         if tones:
-            rules_file = os.path.join('data', 'rules', 'pinyin-to-ipa-tones.txt')
+            rules_file = os.path.join("data", "rules", "pinyin-to-ipa-tones.txt")
         else:
-            rules_file = os.path.join('data', 'rules', rules_file)
+            rules_file = os.path.join("data", "rules", rules_file)
         rules_file = pkg_resources.resource_filename(__name__, rules_file)
         self.cedict = cedict.CEDictTrie(cedict_file, traditional=True)
         self.rules = rules.Rules([rules_file])
-        self.regexp = re.compile(r'\p{Han}')
+        self.regexp = re.compile(r"\p{Han}")

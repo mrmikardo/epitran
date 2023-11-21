@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 import os.path
@@ -16,23 +15,25 @@ import unicodecsv as csv
 from epitran.ligaturize import ligaturize
 from epitran.puncnorm import PuncNorm
 
-if os.name == 'posix' and sys.version_info[0] < 3:
+if os.name == "posix" and sys.version_info[0] < 3:
     import subprocess32 as subprocess
 else:
     import subprocess
 
 logging.basicConfig(level=logging.CRITICAL)
-logger = logging.getLogger('epitran')
+logger = logging.getLogger("epitran")
 
 
 if sys.version_info[0] == 3:
+
     def unicode(x):
         return x
 
 
 class Flite(object):
     """English G2P using the Flite speech synthesis system."""
-    def __init__(self, arpabet='arpabet', ligatures=False, **kwargs):
+
+    def __init__(self, arpabet="arpabet", ligatures=False, **kwargs):
         """Construct a Flite "wrapper"
 
         Args:
@@ -40,40 +41,41 @@ class Flite(object):
             ligatures (bool): if True, use non-standard ligatures instead of
                               standard IPA
         """
-        arpabet = pkg_resources.resource_filename(__name__, os.path.join('data', arpabet + '.csv'))
+        arpabet = pkg_resources.resource_filename(
+            __name__, os.path.join("data", arpabet + ".csv")
+        )
         self.arpa_map = self._read_arpabet(arpabet)
         self.chunk_re = re.compile(r"([A-Za-z'’]+|[^A-Za-z'’]+)", re.U)
         self.letter_re = re.compile(r"[A-Za-z'’]+")
-        self.regexp = re.compile(r'[A-Za-z]')
+        self.regexp = re.compile(r"[A-Za-z]")
         self.puncnorm = PuncNorm()
         self.ligatures = ligatures
         self.ft = panphon.FeatureTable()
         self.num_panphon_fts = len(self.ft.names)
 
-
     def _read_arpabet(self, arpabet):
         arpa_map = {}
-        with open(arpabet, 'rb') as f:
-            reader = csv.reader(f, encoding='utf-8')
+        with open(arpabet, "rb") as f:
+            reader = csv.reader(f, encoding="utf-8")
             for arpa, ipa in reader:
                 arpa_map[arpa] = ipa
         return arpa_map
 
     def normalize(self, text):
         text = unicode(text)
-        text = unicodedata.normalize('NFD', text)
-        text = ''.join(filter(lambda x: x in string.printable, text))
+        text = unicodedata.normalize("NFD", text)
+        text = "".join(filter(lambda x: x in string.printable, text))
         return text
 
     def arpa_text_to_list(self, arpa_text):
-        return arpa_text.split(' ')[1:-1]
+        return arpa_text.split(" ")[1:-1]
 
     def arpa_to_ipa(self, arpa_text, ligatures=False):
         arpa_text = arpa_text.strip()
         arpa_list = self.arpa_text_to_list(arpa_text)
-        arpa_list = map(lambda d: re.sub(r'\d', '', d), arpa_list)
+        arpa_list = map(lambda d: re.sub(r"\d", "", d), arpa_list)
         ipa_list = map(lambda d: self.arpa_map[d], arpa_list)
-        text = ''.join(ipa_list)
+        text = "".join(ipa_list)
         return text
 
     def english_g2p(self, english):
@@ -89,14 +91,14 @@ class Flite(object):
             ligatures (bool): if True, use non-standard ligatures instead of
                               standard IPA
         """
-        text = unicodedata.normalize('NFC', text)
+        text = unicodedata.normalize("NFC", text)
         acc = []
         for chunk in self.chunk_re.findall(text):
             if self.letter_re.match(chunk):
                 acc.append(self.english_g2p(chunk))
             else:
                 acc.append(chunk)
-        text = ''.join(acc)
+        text = "".join(acc)
         text = self.puncnorm.norm(text) if normpunc else text
         text = ligaturize(text) if (ligatures or self.ligatures) else text
         return text
@@ -122,14 +124,15 @@ class Flite(object):
         where -1 corresponds to '-', 0 corresponds to '0', and 1 corresponds to
         '+'.
         """
+
         def cat_and_cap(c):
             cat, case = tuple(unicodedata.category(c))
-            case = 1 if case == 'u' else 0
+            case = 1 if case == "u" else 0
             return unicode(cat), case
 
         def recode_ft(ft):
             try:
-                return {'+': 1, '0': 0, '-': -1}[ft]
+                return {"+": 1, "0": 0, "-": -1}[ft]
             except KeyError:
                 return None
 
@@ -140,7 +143,7 @@ class Flite(object):
             return seg, vec2bin(self.ft.segment_to_vector(seg))
 
         def to_vectors(phon):
-            if phon == '':
+            if phon == "":
                 return [(-1, [0] * self.num_panphon_fts)]
             else:
                 return [to_vector(seg) for seg in self.ft.ipa_segs(phon)]
@@ -148,27 +151,27 @@ class Flite(object):
         tuples = []
         word = unicode(word)
         # word = self.strip_diacritics.process(word)
-        word = unicodedata.normalize('NFKD', word)
-        word = unicodedata.normalize('NFC', word)
+        word = unicodedata.normalize("NFKD", word)
+        word = unicodedata.normalize("NFC", word)
         while word:
-            match = re.match('[A-Za-z]+', word)
+            match = re.match("[A-Za-z]+", word)
             if match:
                 span = match.group(0)
                 cat, case = cat_and_cap(span[0])
                 phonword = self.transliterate(span)
                 phonsegs = self.ft.ipa_segs(phonword)
                 maxlen = max(len(phonsegs), len(span))
-                orth = list(span) + [''] * (maxlen - len(span))
-                phonsegs += [''] * (maxlen - len(phonsegs))
+                orth = list(span) + [""] * (maxlen - len(span))
+                phonsegs += [""] * (maxlen - len(phonsegs))
                 for p, o in zip(phonsegs, orth):
-                    tuples.append(('L', case, o, p, to_vectors(p)))
-                word = word[len(span):]
+                    tuples.append(("L", case, o, p, to_vectors(p)))
+                word = word[len(span) :]
             else:
                 span = word[0]
                 span = self.puncnorm.norm(span) if normpunc else span
                 cat, case = cat_and_cap(span)
-                cat = 'P' if normpunc and cat in self.puncnorm else cat
-                phon = ''
+                cat = "P" if normpunc and cat in self.puncnorm else cat
+                phon = ""
                 vecs = to_vectors(phon)
                 tuples.append((cat, case, span, phon, vecs))
                 word = word[1:]
@@ -181,14 +184,14 @@ class FliteT2P(Flite):
     def english_g2p(self, text):
         text = self.normalize(text)
         try:
-            arpa_text = subprocess.check_output(['t2p', '"{}"'.format(text)])
-            arpa_text = arpa_text.decode('utf-8')
+            arpa_text = subprocess.check_output(["t2p", '"{}"'.format(text)])
+            arpa_text = arpa_text.decode("utf-8")
         except OSError:
-            logger.warning('t2p (from flite) is not installed.')
-            arpa_text = ''
+            logger.warning("t2p (from flite) is not installed.")
+            arpa_text = ""
         except subprocess.CalledProcessError:
-            logger.warning('Non-zero exit status from t2p.')
-            arpa_text = ''
+            logger.warning("Non-zero exit status from t2p.")
+            arpa_text = ""
         return self.arpa_to_ipa(arpa_text)
 
 
@@ -196,19 +199,19 @@ class FliteLexLookup(Flite):
     """Flite G2P using lex_lookup."""
 
     def arpa_text_to_list(self, arpa_text):
-        return arpa_text[1:-1].split(' ')
+        return arpa_text[1:-1].split(" ")
 
     def english_g2p(self, text):
         text = self.normalize(text).lower()
         try:
-            arpa_text = subprocess.check_output(['lex_lookup', text])
-            arpa_text = arpa_text.decode('utf-8')
+            arpa_text = subprocess.check_output(["lex_lookup", text])
+            arpa_text = arpa_text.decode("utf-8")
         except OSError:
-            logger.warning('lex_lookup (from flite) is not installed.')
-            arpa_text = ''
+            logger.warning("lex_lookup (from flite) is not installed.")
+            arpa_text = ""
         except subprocess.CalledProcessError:
-            logger.warning('Non-zero exit status from lex_lookup.')
-            arpa_text = ''
+            logger.warning("Non-zero exit status from lex_lookup.")
+            arpa_text = ""
         # Split on newlines and take the first element (in case lex_lookup
         # returns multiple lines).
         arpa_text = arpa_text.splitlines()[0]

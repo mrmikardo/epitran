@@ -9,8 +9,9 @@ from epitran.puncnorm import PuncNorm
 from epitran.simple import SimpleEpitran
 from epitran.xsampa import XSampa
 
-logger = logging.getLogger('epitran')
+logger = logging.getLogger("epitran")
 logger.setLevel(logging.WARNING)
+
 
 class Epitran(object):
     """Unified interface for IPA transliteration/transcription
@@ -22,25 +23,50 @@ class Epitran(object):
     :param cedict_filename str: path to file containing the CC-CEDict dictionary
     :param rev boolean: use reverse transliteration
     :param rev_preproc bool: if True, apply preprocessors when reverse transliterating
-    :param rev_postproc bool: if True, apply postprocessors when reverse transliterating 
+    :param rev_postproc bool: if True, apply postprocessors when reverse transliterating
     """
-    special = {'eng-Latn': FliteLexLookup,
-               'cmn-Hans': Epihan,
-               'cmn-Hant': EpihanTraditional}
 
-    def __init__(self, code: str, preproc: bool=True, postproc: bool=True, ligatures: bool=False,
-                cedict_file: Union[bool, None]=None, rev: bool=False, 
-                rev_preproc: bool=True, rev_postproc: bool=True, tones: bool=False):
+    special = {
+        "eng-Latn": FliteLexLookup,
+        "cmn-Hans": Epihan,
+        "cmn-Hant": EpihanTraditional,
+    }
+
+    def __init__(
+        self,
+        code: str,
+        preproc: bool = True,
+        postproc: bool = True,
+        ligatures: bool = False,
+        cedict_file: Union[bool, None] = None,
+        rev: bool = False,
+        rev_preproc: bool = True,
+        rev_postproc: bool = True,
+        tones: bool = False,
+    ):
         """Constructor method"""
         if code in self.special:
-            self.epi = self.special[code](ligatures=ligatures, cedict_file=cedict_file, tones=tones)
+            self.epi = self.special[code](
+                ligatures=ligatures, cedict_file=cedict_file, tones=tones
+            )
         else:
-            self.epi = SimpleEpitran(code, preproc, postproc, ligatures, rev, rev_preproc, rev_postproc, tones=tones)
+            self.epi = SimpleEpitran(
+                code,
+                preproc,
+                postproc,
+                ligatures,
+                rev,
+                rev_preproc,
+                rev_postproc,
+                tones=tones,
+            )
         self.ft = panphon.featuretable.FeatureTable()
         self.xsampa = XSampa()
         self.puncnorm = PuncNorm()
 
-    def transliterate(self, word: str, normpunc: bool=False, ligatures: bool=False) -> str:
+    def transliterate(
+        self, word: str, normpunc: bool = False, ligatures: bool = False
+    ) -> str:
         """Transliterates/transcribes a word into IPA
 
         :param word str: word to transcribe
@@ -60,7 +86,9 @@ class Epitran(object):
         """
         return self.epi.reverse_transliterate(ipa)
 
-    def strict_trans(self, word: str, normpunc:bool =False, ligatures: bool=False) -> str:
+    def strict_trans(
+        self, word: str, normpunc: bool = False, ligatures: bool = False
+    ) -> str:
         """Transliterate a word into IPA, ignoring all characters that cannot be recognized.
 
         :param word str: word to transcribe
@@ -71,7 +99,9 @@ class Epitran(object):
         """
         return self.epi.strict_trans(word, normpunc, ligatures)
 
-    def trans_list(self, word: str, normpunc: bool=False, ligatures: bool=False) -> "list[str]":
+    def trans_list(
+        self, word: str, normpunc: bool = False, ligatures: bool = False
+    ) -> "list[str]":
         """Transliterates/transcribes a word into list of IPA phonemes
 
         :param word str: word to transcribe
@@ -82,7 +112,13 @@ class Epitran(object):
         """
         return self.ft.segs_safe(self.epi.transliterate(word, normpunc, ligatures))
 
-    def trans_delimiter(self, text: str, delimiter: str=str(' '), normpunc: bool=False, ligatures: bool=False):
+    def trans_delimiter(
+        self,
+        text: str,
+        delimiter: str = str(" "),
+        normpunc: bool = False,
+        ligatures: bool = False,
+    ):
         """Return IPA transliteration with a delimiter between segments
 
         :param text str: An orthographic text
@@ -92,10 +128,11 @@ class Epitran(object):
         :return: String of IPA phonemes separated by `delimiter`
         :rtype: str
         """
-        return delimiter.join(self.trans_list(text, normpunc=normpunc,
-                                              ligatures=ligatures))
+        return delimiter.join(
+            self.trans_list(text, normpunc=normpunc, ligatures=ligatures)
+        )
 
-    def xsampa_list(self, word: str, normpunc: bool=False, ligaturize: bool=False):
+    def xsampa_list(self, word: str, normpunc: bool = False, ligaturize: bool = False):
         """Transliterates/transcribes a word as X-SAMPA
 
         :param word str: An orthographic word
@@ -104,11 +141,12 @@ class Epitran(object):
         :return: List of X-SAMPA strings corresponding to `word`
         :rtype: list[str]
         """
-        ipa_segs = self.ft.ipa_segs(self.epi.strict_trans(word, normpunc,
-                                                          ligaturize))
+        ipa_segs = self.ft.ipa_segs(self.epi.strict_trans(word, normpunc, ligaturize))
         return list(map(self.xsampa.ipa2xs, ipa_segs))
 
-    def word_to_tuples(self, word: str, normpunc: bool=False, _ligaturize: bool=False):
+    def word_to_tuples(
+        self, word: str, normpunc: bool = False, _ligaturize: bool = False
+    ):
         """Given a word, returns a list of tuples corresponding to IPA segments. The "feature
         vectors" form a list consisting of (segment, vector) pairs.
         For IPA segments, segment is a substring of phonetic_form such that the
@@ -126,4 +164,6 @@ class Epitran(object):
         try:
             return self.epi.word_to_tuples(word, normpunc)
         except AttributeError:
-            raise AttributeError('Method word_to_tuples not yet implemented for this language-script pair!') from AttributeError
+            raise AttributeError(
+                "Method word_to_tuples not yet implemented for this language-script pair!"
+            ) from AttributeError

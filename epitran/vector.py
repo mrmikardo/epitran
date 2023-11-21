@@ -1,12 +1,11 @@
-from __future__ import (absolute_import, division, print_function,
-                        unicode_literals)
+from __future__ import absolute_import, division, print_function, unicode_literals
 
 import logging
 
 from epitran import Epitran
 from epitran.space import Space
 
-logger = logging.getLogger('epitran')
+logger = logging.getLogger("epitran")
 
 
 class VectorsWithIPASpace(object):
